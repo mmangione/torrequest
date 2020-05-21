@@ -8,14 +8,14 @@ import requests
 import time
 
 class TorRequest(object):
-  def __init__(self, 
-      proxy_port=9050, 
+  def __init__(self,
+      proxy_port=9050,
       ctrl_port=9051,
       password=None):
 
     self.proxy_port = proxy_port
     self.ctrl_port = ctrl_port
-    
+
     self._tor_proc = None
     if not self._tor_process_exists():
       self._tor_proc = self._launch_tor()
@@ -25,8 +25,8 @@ class TorRequest(object):
 
     self.session = requests.Session()
     self.session.proxies.update({
-      'http': 'socks5://localhost:%d' % self.proxy_port,
-      'https': 'socks5://localhost:%d' % self.proxy_port,
+      'http': f'socks5://localhost:{self.proxy_port}',
+      'https': f'socks5://localhost:{self.proxy_port}',
     })
 
   def _tor_process_exists(self):
@@ -46,11 +46,11 @@ class TorRequest(object):
       take_ownership=True)
 
   def close(self):
-    try: 
+    try:
       self.session.close()
     except: pass
 
-    try: 
+    try:
       self.ctrl.close()
     except: pass
 
@@ -75,7 +75,7 @@ class TorRequest(object):
 
   def patch(self, *args, **kwargs):
     return self.session.patch(*args, **kwargs)
-    
+
   def delete(self, *args, **kwargs):
     return self.session.delete(*args, **kwargs)
 
