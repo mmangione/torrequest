@@ -8,6 +8,7 @@ import requests
 import time
 
 class TorRequest(object):
+
   def __init__(self,
       proxy_port=9050,
       ctrl_port=9051,
@@ -22,6 +23,15 @@ class TorRequest(object):
 
     self.ctrl = Controller.from_port(port=self.ctrl_port)
     self.ctrl.authenticate(password=password)
+
+    self.session = None
+    self.create_session()
+
+  def create_session(self):
+    try:
+      if self.session is not None:
+        self.session.close()
+    except: pass
 
     self.session = requests.Session()
     self.session.proxies.update({
@@ -63,6 +73,12 @@ class TorRequest(object):
   def reset_identity(self):
     self.reset_identity_async()
     time.sleep(self.ctrl.get_newnym_wait())
+    self.create_session()
+
+  def smart_reset_identity(self):
+    if self.ctrl.is_newnym_available():
+      self.create_session()
+      self.reset_identity_async()
 
   def get(self, *args, **kwargs):
     return self.session.get(*args, **kwargs)
